@@ -1,10 +1,19 @@
 import express, {Application, Request, Response} from 'express';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 import {DBUtil} from "./util/DBUtil";
-import mongoose from 'mongoose';
+import contactRouter from "./router/contactRouter";
+import groupRouter from "./router/groupRouter";
+import userRouter from "./router/userRouter";
+
+
 const app: Application = express();
 
-// configure express to 
+// configure CORS
+app.use(express.json());
+// configure express to receive the form data
+app.use(express.json());
+
+// configure dot-env
 dotenv.config({
     path: "./.env"
 });
@@ -21,18 +30,18 @@ app.get("/", (request: Request, response: Response) => {
 });
 
 // configure the routers
-// app.use("/contacts", contactRouter);
-// app.use("/groups", groupRouter);
+app.use("/contact", contactRouter);
+app.use("/group", groupRouter);
+app.use("/user", userRouter);
 
 if (port) {
     app.listen(Number(port), () => {
         if (dbUrl && dbName) {
-            console.log(`${dbUrl} - ${dbName}`);
             DBUtil.connectToDB(dbUrl, dbName).then((dbResponse) => {
                 console.log(dbResponse);
             }).catch((error) => {
                 console.error(error);
-                process.exit(0); 
+                process.exit(0); // Force stop express server
             });
         }
         console.log(`Express Server is started at ${port}`);
